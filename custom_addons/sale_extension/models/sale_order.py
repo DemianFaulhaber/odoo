@@ -1,6 +1,8 @@
 from odoo import api, fields, models
 
+
 #veamos si funca
+
 
 class SaleOrder(models.Model):
 #custom fields
