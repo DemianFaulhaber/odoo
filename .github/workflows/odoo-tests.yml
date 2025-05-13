@@ -61,7 +61,7 @@ jobs:
           DB_USER: odoo
           DB_PASSWORD: odoo
         run: |
-          odoo-bin \
+          ./odoo-bin \
             --addons-path=custom_addons \
             -d test_db \
             --db_host=$DB_HOST \
