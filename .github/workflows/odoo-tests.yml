@@ -61,5 +61,13 @@ jobs:
           DB_USER: odoo
           DB_PASSWORD: odoo
         run: |
-          ./odoo-bin -d test_db --db_host=$DB_HOST --db_user=$DB_USER --db_password=$DB_PASSWORD \
-            --test-enable --stop-after-init -i ${{ steps.read_modules.outputs.modules_to_test }}
+          odoo/odoo-bin \
+            --addons-path=custom_addons \
+            -d test_db \
+            --db_host=$DB_HOST \
+            --db_user=$DB_USER \
+            --db_password=$DB_PASSWORD \
+            --test-enable \
+            --test-tags=my_ci \
+            --stop-after-init \
+            -i ${{ steps.read_modules.outputs.modules_to_test }}
