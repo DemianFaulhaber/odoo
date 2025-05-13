@@ -62,12 +62,12 @@ jobs:
           DB_PASSWORD: odoo
         run: |
           ./odoo-bin \
-            --addons-path=custom_addons \
+            --addons-path=addons,custom_addons \
             -d test_db \
             --db_host=$DB_HOST \
             --db_user=$DB_USER \
             --db_password=$DB_PASSWORD \
             --test-enable \
-            --test-tags=my_ci \
+            --test-tags=ci_only \
             --stop-after-init \
             -i ${{ steps.read_modules.outputs.modules_to_test }}
