@@ -31,17 +31,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
-
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            build-essential \
-            python3-dev \
-            libldap2-dev \
-            libsasl2-dev \
-            libssl-dev
+          python-version: '3.10'
 
       - name: Install dependencies
         run: |
@@ -61,13 +51,5 @@ jobs:
           DB_USER: odoo
           DB_PASSWORD: odoo
         run: |
-          ./odoo-bin \
-            --addons-path=addons,custom_addons \
-            -d test_db \
-            --db_host=$DB_HOST \
-            --db_user=$DB_USER \
-            --db_password=$DB_PASSWORD \
-            --test-enable \
-            --test-tags=ci_only \
-            --stop-after-init \
-            -i ${{ steps.read_modules.outputs.modules_to_test }}
+          ./odoo-bin -d test_db --db_host=$DB_HOST --db_user=$DB_USER --db_password=$DB_PASSWORD \
+            --test-enable --stop-after-init -i ${{ steps.read_modules.outputs.modules_to_test }}
