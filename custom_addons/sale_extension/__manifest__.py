@@ -22,7 +22,7 @@
             'sale_extension/static/src/scss/hide_buttons.scss',
             'sale_extension/static/src/scss/sales_kanban_hide_fields.scss',
             'sale_extension/static/src/scss/sale_order_custom.scss',
-            'sale_extension/static/src/js/sale_order_list_colors.js'
+            'sale_extension/static/src/js/sale_order_list_colors.js',
             'sale_extension/static/src/js/sale_order_tabs.js'
         ],
     },

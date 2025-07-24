@@ -62,3 +62,7 @@ th .text-truncate {
     opacity: 0.3 !important;
     color: #6c757d !important;
 }
+
+span[data-tooltip="Total Tax Included"] {
+    display: none !important;
+}

@@ -82,9 +82,10 @@
                     </div>
                     <field name="discount" readonly="1" nolabel="1" on_change="1"/>
                 </xpath>
-                <!-- <xpath expr="//field[@name='date_order']" position="attributes">
-                    <attribute name="readonly">quotation_status == 1</attribute>
-                </xpath> -->
+                <!-- aca es donde se pone lo de readonly pero no funca -->
+                <xpath expr="//field[@name='date_order']" position="attributes">
+                    <attribute name="attrs">{'readonly': [('sale_status', '!=', 'quotation')]}</attribute>
+                </xpath>
                 <xpath expr="//button[@name='action_preview_sale_order']" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
