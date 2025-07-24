@@ -21,6 +21,7 @@
             'sale_extension/static/src/scss/hide_topbar.scss',
             'sale_extension/static/src/scss/hide_buttons.scss',
             'sale_extension/static/src/scss/sales_kanban_hide_fields.scss',
+            'sale_extension/static/src/scss/sale_order_custom.scss'
         ],
     },
     'installable': True,
