@@ -40,6 +40,8 @@ package-lock.json
 package.json
 .husky
 
+./startOdoo.sh
+
 # various virtualenv
 /bin/
 /build/

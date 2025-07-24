@@ -15,7 +15,7 @@ class FileManager(models.Model):
     quotation_status = fields.Selection([
         ('draft', 'Draft'),
         ('confirmed', 'Confirmed'),
-        ('order_note', 'Order_note')
+        ('approved', 'Approved'),
         #cambiar a aprobado
     ], string="quotation status", default='draft' )
 
@@ -28,7 +28,7 @@ class FileManager(models.Model):
     def action_confirm(self):
         res = super().action_confirm()
         for order in self:
-            order.quotation_status = 'order_note'
+            order.quotation_status = 'approved'
             order.sale_file_manager("sale_order")
         return res
 
@@ -60,7 +60,7 @@ class FileManager(models.Model):
 
 
                 os.makedirs(output_dir, exist_ok=True)
-                filename = f'Presupuesto_{order.name}.pdf' if status == 'quotation' else f'Orden_de_venta_{order.name}.pdf'
+                filename = f'Presupuesto_{order.name}.pdf' if status == 'quotation' else f'Nota_de_pedido_{order.name}.pdf'
                 full_path = os.path.join(output_dir, filename)
 
                 if(status == 'quotation'):
