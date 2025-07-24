@@ -3,3 +3,8 @@ th .text-truncate {
     overflow: visible !important;
     text-overflow: clip !important;
 }
+
+tfoot .o_list_footer {
+    display: none !important;
+
+}
