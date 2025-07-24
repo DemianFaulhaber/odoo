@@ -28,6 +28,9 @@
             <field name="inherit_id" ref="sale.view_order_form"/>
             <field name="arch" type="xml">
             <xpath expr="//button[@name='action_cancel']" position="after">
+                <!-- Hidden field to trigger JS - placed at button level for easy access -->
+                <field name="sale_status" invisible="0" id="sale_status_trigger"/>
+                
                 <button name="print_quotation_report"
                         string="Imprimir Presupuesto"
                         type="object"
@@ -112,34 +115,48 @@
             <field name="arch" type="xml">
                 <!-- Agregar una nueva página al notebook existente -->
                 <xpath expr="//notebook" position="inside">
-                    <page string="Nota de pedido" name="order_note">
+                    <page 
+                    string="Nota de pedido" 
+                    name="order_note"
+                    id="tab_order_note"
+                    invisible="sale_status == 'quotation'">
                         <group col="2">
                             <group>
                                 <field name="order_note_id" string="Nota de pedido" readonly="1"/>
-                                <field name="buy_order" string="Estado nota de compra"/>
-                                <field name="buy_order_number" string="Número de nota de compra" invisible="buy_order != 'number'"/>
-                                <field name="buy_order_date" string="Fecha de nota de compra"/>
+                                <field name="buy_order" string="Estado nota de compra" readonly="sale_status in ['remito', 'invoice']"/>
+                                <field name="buy_order_number" string="Número de nota de compra" 
+                                       invisible="buy_order != 'number'" 
+                                       readonly="sale_status in ['remito', 'invoice']"/>
+                                <field name="buy_order_date" string="Fecha de nota de compra" readonly="sale_status in ['remito', 'invoice']"/>
                             </group>
                             <group>
-                                <field name="order_note_state" string="Estado nota de pedido"/>
-                                <field name="order_note_date" string="Fecha de nota de pedido" readonly="0"/>
+                                <field name="order_note_state" string="Estado nota de pedido" readonly="sale_status in ['remito', 'invoice']"/>
+                                <field name="order_note_date" string="Fecha de nota de pedido" readonly="sale_status in ['remito', 'invoice']"/>
                             </group>
                         </group>
                     </page>
-                    <page string="Remitos" name="remitos">
+                    <page 
+                    string="Remitos" 
+                    name="remitos"
+                    id="tab_remitos"
+                    invisible="sale_status in ['quotation', 'sale_order']">
                         <group col="3">
                             <group>
-                                <field name="remito_status" string="Estado remito"/>
+                                <field name="remito_status" string="Estado remito" readonly="sale_status == 'invoice'"/>
                             </group>
                             <group>
-                                <field name="remito_number" string="Número de remito" readonly="0"/>
+                                <field name="remito_number" string="Número de remito" readonly="sale_status == 'invoice'"/>
                             </group>
                             <group>
-                                <field name="remito_date" string="Fecha de remito" readonly="0"/>
+                                <field name="remito_date" string="Fecha de remito" readonly="sale_status == 'invoice'"/>
                             </group>
                         </group>
                     </page>
-                    <page string="Factura" name="factura">
+                    <page 
+                    string="Factura" 
+                    name="factura"
+                    id="tab_factura"
+                    invisible="sale_status in ['quotation', 'sale_order', 'remito']">
                         <group col="3">
                             <group>
                                 <field name="bill_number" class="o_field_widget o_field_many2one"/>

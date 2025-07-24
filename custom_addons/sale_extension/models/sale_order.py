@@ -101,6 +101,13 @@ class SaleOrder(models.Model):
         ('billed', 'Cobrada')
     ], string="Estado de factura", default='issued', store=True)
 
+    sale_status = fields.Selection([
+        ('quotation', 'Presupuesto'),
+        ('sale_order', 'Orden de venta'),
+        ('remito', 'Remito'),
+        ('invoice', 'Factura')
+    ], string="Estado de venta", default='quotation', store=True)
+
     # Custom computed fields for discount calculations
     amount_untaxed_before_discount = fields.Monetary(
         string='Untaxed Amount', 
@@ -210,6 +217,46 @@ class SaleOrder(models.Model):
     def action_import_csv(self):
         return {
         }
+
+    @api.depends('sale_status')
+    def action_next(self):
+        """
+        Override the default action_next to handle custom sale statuses
+        """
+        for order in self:
+            if order.sale_status == 'quotation':
+                order.sale_status = 'sale_order'
+            elif order.sale_status == 'sale_order':
+                order.sale_status = 'remito'
+            elif order.sale_status == 'remito':
+                order.sale_status = 'invoice'
+            elif order.sale_status == 'invoice':
+                # No next status, stay on invoice
+                pass
+            else:
+                # If status is not recognized, reset to quotation
+                order.sale_status = 'quotation'
+        return True
+    
+    @api.depends('sale_status')
+    def action_previous(self):
+        """
+        Override the default action_previous to handle custom sale statuses
+        """
+        for order in self:
+            if order.sale_status == 'invoice':
+                order.sale_status = 'remito'
+            elif order.sale_status == 'remito':
+                order.sale_status = 'sale_order'
+            elif order.sale_status == 'sale_order':
+                order.sale_status = 'quotation'
+            elif order.sale_status == 'quotation':
+                # No previous status, stay on quotation
+                pass
+            else:
+                # If status is not recognized, reset to quotation
+                order.sale_status = 'quotation'
+        return True
 
     @api.depends('order_line.price_total', 'discount', 'taxes')
     def _amount_all(self):
