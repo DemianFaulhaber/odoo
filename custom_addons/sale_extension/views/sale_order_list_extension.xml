@@ -63,8 +63,9 @@
                 <field name="delivery_date" optional="show"/>
                 <field name="delivery_method" optional="show"/>
                 <field name="date_order" optional="show" string="Fecha de cotización"/>
-                <field name="discount" optional="hide"/>
+                <field name="discount" optional="show"/>
             </xpath>
         </field>
     </record>
+    
 </odoo>

@@ -16,6 +16,7 @@ class FileManager(models.Model):
         ('draft', 'Draft'),
         ('confirmed', 'Confirmed'),
         ('order_note', 'Order_note')
+        #cambiar a aprobado
     ], string="quotation status", default='draft' )
 
     def action_save_quotation(self):
