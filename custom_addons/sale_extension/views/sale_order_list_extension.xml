@@ -72,7 +72,7 @@
                 <field name="date_order" optional="show" string="Fecha de cotización"/>
             </xpath>
             <xpath expr="//field[@name='amount_total']" position="after">
-                <field name="buy_order_number" optional="show"/>
+                <field name="buy_order_display" optional="show"/>
                 <field name="buy_order_date" optional="show"/>
                 <field name="order_note_state" optional="show"/>
                 <field name="order_note_date" optional="show"/>
