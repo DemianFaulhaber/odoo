@@ -29,6 +29,12 @@ class SaleOrder(models.Model):
         ('90_day_check', 'Cheque a 30 / 60 / 90 días')
     ], string="Condición de venta")
 
+    quotation_status = fields.Selection([
+        ('draft', 'Borrador'),
+        ('confirmed', 'Confirmado'),
+        ('approved', 'Aprobado')
+    ], string="Estado de presupuesto", default='draft', store=True)
+
     buy_order = fields.Selection([
         ('wpp','WhatsApp'),
         ('email','Email'),
@@ -56,7 +62,7 @@ class SaleOrder(models.Model):
         ('emitida', 'Emitida'),
         ('process', 'En proceso'),
         ('finished', 'Finalizada')
-    ], string="Estado NP", default='emitida', store=True)
+    ], string="Estado NP", store=True)
 
     order_note_date = fields.Date(
         string="Fecha de nota de pedido",
@@ -68,7 +74,7 @@ class SaleOrder(models.Model):
     remito_status = fields.Selection([
         ('pending', 'Pendiente'),
         ('delivered', 'Emitido')
-    ], string="Estado remito", default='pending', store=True)
+    ], string="Estado remito", store=True)
 
     remito_number = fields.Char(
         string="Número de remito",
@@ -99,14 +105,14 @@ class SaleOrder(models.Model):
     bill_status = fields.Selection([
         ('issued', 'Emitida'),
         ('billed', 'Cobrada')
-    ], string="Estado de factura", default='issued', store=True)
+    ], string="Estado de factura", store=True)
 
     sale_status = fields.Selection([
         ('quotation', 'Presupuesto'),
         ('sale_order', 'Orden de venta'),
         ('remito', 'Remito'),
-        ('invoice', 'Factura')
-    ], string="Estado de venta", default='quotation', store=True)
+        ('bill', 'Factura')
+    ], string="Estado de venta", default='quotation', store=True, compute='_compute_sale_status', readonly=True)
 
     # Custom computed fields for discount calculations
     amount_untaxed_before_discount = fields.Monetary(
@@ -140,6 +146,53 @@ class SaleOrder(models.Model):
          return self.env.ref('sale_extension.order_note_pdf').report_action(self)
 
     #custom computes
+    @api.depends('quotation_status', 'order_note_state', 'remito_status', 'bill_status')
+    def _compute_sale_status(self):
+        """
+        Compute sale_status automatically based on workflow state conditions:
+        - quotation: when quotation_status != 'approved'
+        - sale_order: when quotation_status == 'approved' and order_note_state != 'finished'
+        - remito: when order_note_state == 'finished' and remito_status != 'delivered'
+        - bill: when remito_status == 'delivered'
+        """
+        for order in self:
+            old_status = order.sale_status
+            
+            if order.quotation_status != 'approved':
+                order.sale_status = 'quotation'
+            elif order.quotation_status == 'approved' and order.order_note_state != 'finished':
+                order.sale_status = 'sale_order'
+                # Generate order_note_id when transitioning to sale_order (order_note)
+                if old_status != 'sale_order' and not order.order_note_id:
+                    order.order_note_id = order._generate_order_note_id()
+            elif order.order_note_state == 'finished' and order.remito_status != 'delivered':
+                order.sale_status = 'remito'
+            elif order.remito_status == 'delivered':
+                order.sale_status = 'bill'
+            else:
+                # Fallback to quotation if conditions don't match
+                order.sale_status = 'quotation'
+
+    def _generate_order_note_id(self):
+        """
+        Generate order_note_id using the same logic as order creation but for order notes
+        Format: YYYY-MM-sequential_number
+        """
+        date = fields.Datetime.now()
+        
+        domain = [('order_note_id', 'like', f"{date.year}-{date.month:02d}-")]
+        last_order = self.search(domain, order='id desc', limit=1)
+        if last_order and last_order.order_note_id:
+            try:
+                last_seq = int(last_order.order_note_id.split('-')[-1])
+            except (ValueError, IndexError):
+                last_seq = 0
+        else:
+            last_seq = 0
+
+        new_order_note_id = f"{date.year}-{date.month:02d}-{last_seq + 1}"
+        return new_order_note_id
+
     @api.depends('buy_order', 'buy_order_number')
     def _compute_buy_order_display(self):
         for order in self:
@@ -229,9 +282,9 @@ class SaleOrder(models.Model):
             elif order.sale_status == 'sale_order':
                 order.sale_status = 'remito'
             elif order.sale_status == 'remito':
-                order.sale_status = 'invoice'
-            elif order.sale_status == 'invoice':
-                # No next status, stay on invoice
+                order.sale_status = 'bill'
+            elif order.sale_status == 'bill':
+                # No next status, stay on bill
                 pass
             else:
                 # If status is not recognized, reset to quotation
@@ -244,7 +297,7 @@ class SaleOrder(models.Model):
         Override the default action_previous to handle custom sale statuses
         """
         for order in self:
-            if order.sale_status == 'invoice':
+            if order.sale_status == 'bill':
                 order.sale_status = 'remito'
             elif order.sale_status == 'remito':
                 order.sale_status = 'sale_order'

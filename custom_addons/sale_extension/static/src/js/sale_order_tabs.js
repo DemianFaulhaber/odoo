@@ -16,7 +16,7 @@ function updateOrderLinesStatus() {
     
     // Only make Order Lines readonly if not in quotation phase
     const shouldBeReadonly = saleStatus !== 'quotation' && saleStatus !== 'false' && saleStatus !== '';
-    
+
     if (shouldBeReadonly) {
         console.log('Making Order Lines readonly');
         

@@ -17,9 +17,12 @@ echo "🌟 Activating virtual environment..."
 if [ -f "$VENV_PATH/bin/activate" ]; then
     source "$VENV_PATH/bin/activate"
     echo "✅ Virtual environment activated: $(which python)"
+    echo "📦 Python version: $(python --version)"
+    PYTHON_EXEC="$VENV_PATH/bin/python"
 else
     echo "⚠️  Virtual environment not found at $VENV_PATH"
     echo "📝 Using system Python: $(which python)"
+    PYTHON_EXEC="python3"
 fi
 
 echo "🚀 Starting Odoo in development mode..."
@@ -30,4 +33,12 @@ echo ""
 
 # Change to script directory and start Odoo with development mode
 cd "$SCRIPT_DIR"
-./odoo-bin -c odoo.conf --dev=all
+
+# Use the Python executable from venv to ensure all dependencies are available
+if [ -f "$VENV_PATH/bin/activate" ]; then
+    echo "🚀 Starting Odoo with virtual environment Python..."
+    "$PYTHON_EXEC" ./odoo-bin -c odoo.conf --dev=all
+else
+    echo "🚀 Starting Odoo with system Python..."
+    python3 ./odoo-bin -c odoo.conf --dev=all
+fi

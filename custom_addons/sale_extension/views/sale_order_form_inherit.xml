@@ -36,14 +36,14 @@
                         type="object"
                         class="btn btn-secondary"
                         icon="fa-print"
-                        invisible="quotation_status == 'order_note'"/>
+                        invisible="quotation_status == 'draft'"/>
 
                 <button name="print_ordernote_report" 
                         string="Imprimir Nota de Pedido"
                         type="object"
                         class="btn btn-secondary"
                         icon="fa-print"
-                        invisible="quotation_status != 'order_note'"
+                        invisible="order_note_state != 'finished'"
                 />
                 <!-- <field name="quotation_status"/> -->
             </xpath>
@@ -231,6 +231,12 @@
                         <label for="taxes" string="Impuestos (%)"/>
                     </div>
                     <field name="taxes" nolabel="1" on_change="1" readonly="sale_status != 'quotation'"/>
+                </xpath>
+                <xpath expr="//field[@name='taxes']" position="after">
+                    <div class="o_td_label" style="display: contents;">
+                        <label for="quotation_status" string="Estado de Presupuesto"/>
+                    </div>
+                    <field name="quotation_status" nolabel="1" on_change="1" readonly="sale_status != 'quotation'"/>
                 </xpath>
             </field>
         </record>

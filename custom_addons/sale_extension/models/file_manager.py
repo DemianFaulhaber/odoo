@@ -11,14 +11,6 @@ _logger = logging.getLogger(__name__)
 class FileManager(models.Model):
     _inherit = "sale.order"
 
-
-    quotation_status = fields.Selection([
-        ('draft', 'Draft'),
-        ('confirmed', 'Confirmed'),
-        ('approved', 'Approved'),
-        #cambiar a aprobado
-    ], string="quotation status", default='draft' )
-
     def action_save_quotation(self):
         for order in self:
             order.quotation_status = 'confirmed'
