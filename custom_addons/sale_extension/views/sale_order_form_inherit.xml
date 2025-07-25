@@ -89,6 +89,21 @@
                 <xpath expr="//field[@name='validity_date']" position="attributes">
                     <attribute name="readonly">sale_status != 'quotation'</attribute>
                 </xpath>
+                <xpath expr="//field[@name='partner_id']" position="attributes">
+                    <attribute name="readonly">sale_status != 'quotation'</attribute>
+                </xpath>
+                <xpath expr="//field[@name='delivery_date']" position="attributes">
+                    <attribute name="readonly">sale_status != 'quotation'</attribute>
+                </xpath>
+                <xpath expr="//field[@name='delivery_method']" position="attributes">
+                    <attribute name="readonly">sale_status != 'quotation'</attribute>
+                </xpath>
+                <!-- <xpath expr="//field[@name='discount']" position="attributes">
+                    <attribute name="readonly">sale_status != 'quotation'</attribute>
+                </xpath> -->
+                <!-- <xpath expr="//field[@name='taxes']" position="attributes">
+                    <attribute name="readonly">sale_status != 'quotation'</attribute>
+                </xpath> -->
                 <xpath expr="//button[@name='action_preview_sale_order']" position="attributes">
                     <attribute name="invisible">1</attribute>
                 </xpath>
@@ -208,14 +223,14 @@
                 
                 <!-- Make discount field modifiable and add taxes field -->
                 <xpath expr="//field[@name='discount']" position="attributes">
-                    <attribute name="readonly">0</attribute>
+                    <attribute name="readonly">sale_status != 'quotation'</attribute>
                 </xpath>
                 
                 <xpath expr="//field[@name='discount']" position="after">
                     <div class="o_td_label" style="display: contents;">
                         <label for="taxes" string="Impuestos (%)"/>
                     </div>
-                    <field name="taxes" nolabel="1" on_change="1"/>
+                    <field name="taxes" nolabel="1" on_change="1" readonly="sale_status != 'quotation'"/>
                 </xpath>
             </field>
         </record>
