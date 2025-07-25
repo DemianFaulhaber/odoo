@@ -2,12 +2,12 @@
 
 import { patch } from "@web/core/utils/patch";
 import { ListRenderer } from "@web/views/list/list_renderer";
-import { onMounted } from '@odoo/owl';
+import { onMounted, onPatched } from '@odoo/owl';
 
 patch(ListRenderer.prototype, {
     setup() {
         super.setup();
-        onMounted(() => {
+        const updateColors = () => {
             const celdas = document.querySelectorAll('td[name="order_note_state"]');
             celdas.forEach((td) => {
                 const texto = td.textContent.trim();
@@ -63,6 +63,8 @@ patch(ListRenderer.prototype, {
                         break;
                 }}
             );
-        });
+        }
+        onMounted(updateColors);
+        onPatched(updateColors);
     }
 });
