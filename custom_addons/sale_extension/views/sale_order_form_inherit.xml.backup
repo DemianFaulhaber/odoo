@@ -29,7 +29,7 @@
             <field name="arch" type="xml">
             <xpath expr="//button[@name='action_cancel']" position="after">
                 <!-- Hidden field to trigger JS - placed at button level for easy access -->
-                <field name="sale_status" invisible="0" id="sale_status_trigger" readonly="false" style="opacity: 0; position: absolute; pointer-events: none;"/>
+                <field name="sale_status" invisible="0" id="sale_status_trigger" readonly="false" style="display: none;"/>
                 
                 <button name="print_quotation_report"
                         string="Imprimir Presupuesto"
@@ -70,17 +70,17 @@
                 </xpath>
 
                 <xpath expr="//field[@name='delivery_date']" position="after">
-                    <!-- <div class="o_td_label">
+                    <div class="o_td_label">
                         <label for="delivery_method" string="Lugar de entrega"/>
-                    </div> -->
-                    <field name="delivery_method" id="delivery_method" string="Lugar de entrega" nolabel="0" on_change="1"/>
+                    </div>
+                    <field name="delivery_method" nolabel="1" on_change="1"/>
                 </xpath>
 
                 <xpath expr="//field[@name='date_order']" position="after">
                     <div class="o_td_label" style="display: contents;">
-                        <!-- <label for="discount" string="Descuento"/> -->
+                        <label for="discount" string="Descuento"/>
                     </div>
-                    <field name="discount" id="discount" string="Descuento" nolabel="0" on_change="1"/>
+                    <field name="discount" readonly="1" nolabel="1" on_change="1"/>
                 </xpath>
 
                 <xpath expr="//field[@name='date_order']" position="attributes">
@@ -141,8 +141,7 @@
                     invisible="sale_status == 'quotation'">
                         <group col="2">
                             <group>
-                                <field name="order_note_id" string="Nota de pedido" 
-                                style="pointer-events:none;cursor:not-allowed;" id="order_note_id_field"/>
+                                <field name="order_note_id" string="Nota de pedido" readonly="1"/>
                                 <field name="buy_order" string="Estado nota de compra" id="buy_order_field"/>
                                 <field name="buy_order_number" string="Número de nota de compra" 
                                        invisible="buy_order != 'number'" 
@@ -179,13 +178,13 @@
                     invisible="sale_status in ['quotation', 'sale_order', 'remito']">
                         <group col="3">
                             <group>
-                                <field name="bill_number" class="o_field_widget o_field_many2one" id="bill_number_field"/>
+                                <field name="bill_number" class="o_field_widget o_field_many2one"/>
                             </group>
                             <group>
-                                <field name="bill_status" class="o_field_widget o_field_many2one" id="bill_status_field"/>
+                                <field name="bill_status" class="o_field_widget o_field_many2one"/>
                             </group>
                             <group>
-                                <field name="bill_date" class="o_field_widget o_field_many2one" id="bill_date_field"/>
+                                <field name="bill_date" class="o_field_widget o_field_many2one"/>
                             </group>
                         </group>
                     </page>
@@ -229,15 +228,15 @@
                 
                 <xpath expr="//field[@name='discount']" position="after">
                     <div class="o_td_label" style="display: contents;">
-                        <!-- <label for="taxes" string="Impuestos (%)"/> -->
+                        <label for="taxes" string="Impuestos (%)"/>
                     </div>
-                    <field name="taxes" id="taxes" string="Impuestos (%)" nolabel="0" on_change="1"/>
+                    <field name="taxes" nolabel="1" on_change="1" id="taxes_field"/>
                 </xpath>
                 <xpath expr="//field[@name='taxes']" position="after">
                     <div class="o_td_label" style="display: contents;">
-                        <!-- <label for="quotation_status" string="Estado de Presupuesto"/> -->
+                        <label for="quotation_status" string="Estado de Presupuesto"/>
                     </div>
-                    <field name="quotation_status" id="quotation_status" string="Estado de Presupuesto" nolabel="0" on_change="1" readonly="0"/>
+                    <field name="quotation_status" nolabel="1" on_change="1" readonly="0" id="quotation_status_field"/>
                 </xpath>
             </field>
         </record>
@@ -315,18 +314,6 @@
                             </table>
                         </div>
                     </group>
-                </xpath>
-            </field>
-        </record>
-
-        <record id="view_order_form_inherit_change_order_lines_string" model="ir.ui.view">
-            <field name="name">sale.order.form.inherit.change.order.lines.string</field>
-            <field name="model">sale.order</field>
-            <field name="inherit_id" ref="sale.view_order_form"/>
-            <field name="arch" type="xml">
-                <!-- Cambiar el string "Order Lines" a "Presupuesto" -->
-                <xpath expr="//page[@name='order_lines']" position="attributes">
-                    <attribute name="string">Presupuesto</attribute>
                 </xpath>
             </field>
         </record>

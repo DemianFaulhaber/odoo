@@ -1,0 +1,68 @@
+th .text-truncate {
+    white-space: normal !important;
+    overflow: visible !important;
+    text-overflow: clip !important;
+    text-align: center !important;
+}
+
+.disabled-page {
+    pointer-events: none;
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.disabled-page .nav-link {
+    pointer-events: none;
+    color: #6c757d;
+}
+
+/* Readonly tab styling */
+.readonly-tab {
+    background-color: #f8f9fa !important;
+    color: #6c757d !important;
+    border-color: #dee2e6 !important;
+}
+
+.readonly-tab:hover {
+    background-color: #f8f9fa !important;
+    color: #6c757d !important;
+}
+
+/* Conditional page styling based on sale_status */
+.o_form_view[data-sale-status="quotation"] .nav-link[href="#order_note"],
+.o_form_view[data-sale-status="quotation"] .nav-link[href="#remitos"],
+.o_form_view[data-sale-status="quotation"] .nav-link[href="#factura"] {
+    pointer-events: none;
+    opacity: 0.6;
+    color: #6c757d;
+}
+
+.o_form_view[data-sale-status="sale_order"] .nav-link[href="#remitos"],
+.o_form_view[data-sale-status="sale_order"] .nav-link[href="#factura"] {
+    pointer-events: none;
+    opacity: 0.6;
+    color: #6c757d;
+}
+
+.o_form_view[data-sale-status="remito"] .nav-link[href="#factura"] {
+    pointer-events: none;
+    opacity: 0.6;
+    color: #6c757d;
+}
+
+/* Custom styling for workflow tabs */
+.readonly-tab {
+    background-color: #f8f9fa !important;
+    color: #6c757d !important;
+    opacity: 0.8;
+}
+
+.disabled-tab {
+    pointer-events: none !important;
+    opacity: 0.3 !important;
+    color: #6c757d !important;
+}
+
+span[data-tooltip="Total Tax Included"] {
+    display: none !important;
+}

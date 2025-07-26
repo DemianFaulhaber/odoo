@@ -18,7 +18,7 @@
                         <div class="page">
                             
                             
-                            <h2><strong>Nota de Pedido</strong> <span t-field="doc.name"/></h2>
+                            <h2><strong>Nota de Pedido</strong> <span t-field="doc.order_note_id"/></h2>
                             <div class="row mt32 mb32">
                                 <div class="col-6">
                                     <strong>Lugar de Entrega:</strong>

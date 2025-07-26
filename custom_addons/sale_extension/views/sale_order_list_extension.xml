@@ -51,6 +51,10 @@
                 <attribute name="column_invisible">True</attribute>
                 <attribute name="optional">hide</attribute>
             </xpath>
+            <xpath expr="//field[@name='user_id']" position="attributes">
+                <attribute name="column_invisible">True</attribute>
+                <attribute name="optional">hide</attribute>
+            </xpath>
         </field>
     </record>
 
@@ -59,12 +63,31 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_quotation_tree_with_onboarding"/>
         <field name="arch" type="xml">
-            <xpath expr="//field[@name='company_id']" position="after">
+            <xpath expr="//field[@name='name']" position="attributes">
+                <attribute name="string">Número de presupuesto</attribute>
+            </xpath>
+        
+            <xpath expr="//field[@name='name']" position="after">
                 <field name="delivery_date" optional="show"/>
-                <field name="delivery_method" optional="show"/>
                 <field name="date_order" optional="show" string="Fecha de cotización"/>
-                <field name="discount" optional="hide"/>
+            </xpath>
+            <xpath expr="//field[@name='amount_total']" position="after">
+                <field name="buy_order_display" optional="show"/>
+                <field name="buy_order_date" optional="show"/>
+                <field name="order_note_state" optional="show"/>
+                <field name="order_note_date" optional="show"/>
+                <field name="remito_number" optional="show"/>
+                <field name="remito_status" optional="show"/>
+                <field name="remito_date" optional="show"/>
+                <field name="bill_number" optional="show"/>
+                <field name="bill_status" optional="show"/>
+                <field name="bill_date" optional="show"/>
+            </xpath>
+            <xpath expr="//field[@name='amount_total']" position="attributes">
+                <attribute name="total" />
             </xpath>
         </field>
+
     </record>
+    
 </odoo>
