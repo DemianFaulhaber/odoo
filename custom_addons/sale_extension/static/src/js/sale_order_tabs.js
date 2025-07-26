@@ -4,8 +4,10 @@
 function updateFieldsVisualState() {
     console.log('Checking fields visual state...');
     
-    // Get the sale_status select element
-    const statusSelect = document.querySelector('select[id^="sale_status"]') || document.getElementById('sale_status_0');
+    // Get the sale_status select element (usando selector más robusto)
+    const statusSelect = document.querySelector('select[id*="sale_status"]') || 
+                        document.querySelector('[name="sale_status"]') ||
+                        document.getElementById('sale_status_0');
     if (!statusSelect) {
         console.log('Status select not found');
         return;
@@ -24,17 +26,54 @@ function updateFieldsVisualState() {
         '[name="discount"]',             // Discount field
         '[name="taxes"]'                 // Taxes field
     ];
+
+    // Define order note fields (disabled when sale_status != 'order_note')
+    const orderNoteFieldSelectors = [
+        '[id*="order_note_id"]',         // Nota de pedido ID (busca cualquier ID que contenga "order_note_id")
+        '[id*="buy_order_"][id$="_0"]',  // Estado nota de compra (busca IDs como "buy_order_0")
+        '[id*="buy_order_number"]',      // Número de nota de compra
+        '[id*="buy_order_date"]',        // Fecha de nota de compra
+        '[id*="order_note_date"]'        // Fecha de nota de pedido (NO incluimos order_note_state que maneja estados)
+    ];
+
+    // Define remito fields (disabled when sale_status != 'remito')
+    const remitoFieldSelectors = [
+        '[id*="remito_number"]',         // Número de remito
+        '[id*="remito_date"]'            // Fecha de remito (NO incluimos remito_status que maneja estados)
+    ];
+
+    // Define factura fields (disabled when sale_status != 'factura')
+    const facturaFieldSelectors = [
+        '[id*="bill_number"]',           // Número de factura
+        '[id*="bill_date"]'              // Fecha de factura (NO incluimos bill_status que maneja estados)
+    ];
     
-    // Should fields be disabled?
-    const shouldBeDisabled = saleStatus !== 'quotation' && saleStatus !== 'false' && saleStatus !== '';
-    
-    quotationOnlyFieldSelectors.forEach(selector => {
+    // Process quotation fields
+    const shouldQuotationBeDisabled = saleStatus !== 'quotation' && saleStatus !== 'false' && saleStatus !== '';
+    applyFieldStyles(quotationOnlyFieldSelectors, shouldQuotationBeDisabled, 'quotation');
+
+    // Process order note fields (se deshabilitan cuando sale_status != 'sale_order')
+    const shouldOrderNoteBeDisabled = saleStatus !== 'sale_order';
+    applyFieldStyles(orderNoteFieldSelectors, shouldOrderNoteBeDisabled, 'sale_order/order_note');
+
+    // Process remito fields  
+    const shouldRemitoBeDisabled = saleStatus !== 'remito';
+    applyFieldStyles(remitoFieldSelectors, shouldRemitoBeDisabled, 'remito');
+
+    // Process factura fields (se deshabilitan cuando sale_status != 'bill')
+    const shouldFacturaBeDisabled = saleStatus !== 'bill';
+    applyFieldStyles(facturaFieldSelectors, shouldFacturaBeDisabled, 'bill/factura');
+}
+
+// Helper function to apply styles to a group of fields
+function applyFieldStyles(fieldSelectors, shouldBeDisabled, groupName) {
+    fieldSelectors.forEach(selector => {
         const fieldElements = document.querySelectorAll(selector);
-        console.log(`Selector "${selector}": found ${fieldElements.length} elements`);
+        console.log(`[${groupName}] Selector "${selector}": found ${fieldElements.length} elements`);
         
         fieldElements.forEach((fieldElement, index) => {
             if (fieldElement) {
-                console.log(`Processing field ${index + 1} for selector: ${selector}`);
+                console.log(`[${groupName}] Processing field ${index + 1} for selector: ${selector}`);
                 
                 if (shouldBeDisabled) {
                     // Apply disabled styles
@@ -43,7 +82,7 @@ function updateFieldsVisualState() {
                     fieldElement.style.cursor = 'not-allowed';
                     fieldElement.style.backgroundColor = '#f8f9fa';
                     fieldElement.setAttribute('data-visual-disabled', 'true');
-                    console.log(`  - Disabled field: ${selector} (element ${index + 1})`);
+                    console.log(`  - Disabled ${groupName} field: ${selector} (element ${index + 1})`);
                 } else {
                     // Remove disabled styles
                     fieldElement.style.opacity = '';
@@ -51,7 +90,7 @@ function updateFieldsVisualState() {
                     fieldElement.style.cursor = '';
                     fieldElement.style.backgroundColor = '';
                     fieldElement.removeAttribute('data-visual-disabled');
-                    console.log(`  - Enabled field: ${selector} (element ${index + 1})`);
+                    console.log(`  - Enabled ${groupName} field: ${selector} (element ${index + 1})`);
                 }
             }
         });
@@ -62,8 +101,10 @@ function updateFieldsVisualState() {
 function updateOrderLinesStatus() {
     console.log('Checking Order Lines status...');
     
-    // Get the sale_status select element
-    const statusSelect = document.querySelector('select[id^="sale_status"]') || document.getElementById('sale_status_0');
+    // Get the sale_status select element (usando selector más robusto)
+    const statusSelect = document.querySelector('select[id*="sale_status"]') || 
+                        document.querySelector('[name="sale_status"]') ||
+                        document.getElementById('sale_status_0');
     if (!statusSelect) {
         console.log('Status select not found');
         return;
@@ -180,7 +221,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Use MutationObserver to watch for the status select and add listener
     const observer = new MutationObserver(function(mutations) {
-        const statusSelect = document.querySelector('select[id^="sale_status"]');
+        const statusSelect = document.querySelector('select[id*="sale_status"]');
         if (statusSelect && !statusSelect.hasAttribute('data-listener-added')) {
             // Add change event listener
             statusSelect.addEventListener('change', function() {
@@ -199,7 +240,7 @@ document.addEventListener('DOMContentLoaded', function() {
         mutations.forEach(mutation => {
             if (mutation.type === 'attributes' && mutation.attributeName === 'value') {
                 const target = mutation.target;
-                if (target.matches && target.matches('select[id^="sale_status"]')) {
+                if (target.matches && target.matches('select[id*="sale_status"]')) {
                     console.log('sale_status value changed programmatically');
                     setTimeout(function() {
                         updateOrderLinesStatus();
@@ -239,7 +280,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Listen for input events on sale_status field
     document.addEventListener('input', function(e) {
-        if (e.target.matches && e.target.matches('select[id^="sale_status"]')) {
+        if (e.target.matches && e.target.matches('select[id*="sale_status"]')) {
             console.log('sale_status input changed');
             setTimeout(function() {
                 updateOrderLinesStatus();
@@ -251,7 +292,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Add a periodic check for value changes (fallback for programmatic changes)
     let lastStatusValue = '';
     setInterval(function() {
-        const statusSelect = document.querySelector('select[id^="sale_status"]');
+        const statusSelect = document.querySelector('select[id*="sale_status"]');
         if (statusSelect) {
             const currentValue = statusSelect.value;
             if (currentValue !== lastStatusValue) {
@@ -290,6 +331,7 @@ window.debugAvailableFields = function() {
     console.log('🔍 DEBUG: Available form fields');
     
     const fieldSelectors = [
+        // Main form fields
         '[name="partner_id"]',           // Customer field
         '[name="date_order"]',
         '[name="validity_date"]', 
@@ -298,7 +340,22 @@ window.debugAvailableFields = function() {
         '[name="discount"]',
         '[name="taxes"]',
         '[name="quotation_status"]',
-        '[name="sale_status"]'
+        '[name="sale_status"]',
+        // Order Note fields (usando selectores más robustos)
+        '[id*="order_note_id"]',
+        '[id*="buy_order_"][id$="_0"]',  // Específico para el campo principal buy_order
+        '[id*="buy_order_number"]',
+        '[id*="buy_order_date"]',
+        '[id*="order_note_state"]',
+        '[id*="order_note_date"]',
+        // Remito fields
+        '[id*="remito_status"]',
+        '[id*="remito_number"]',
+        '[id*="remito_date"]',
+        // Factura fields
+        '[id*="bill_number"]',
+        '[id*="bill_status"]',
+        '[id*="bill_date"]'
     ];
     
     fieldSelectors.forEach(selector => {
@@ -309,16 +366,25 @@ window.debugAvailableFields = function() {
                 id: el.id,
                 name: el.name,
                 tagName: el.tagName,
-                value: el.value,
+                value: el.value || 'N/A',
                 classList: Array.from(el.classList)
             });
         });
     });
     
-    console.log('\n🏷️ All elements with IDs containing field names:');
-    const allFieldElements = document.querySelectorAll('[id*="date_order"], [id*="validity_date"], [id*="delivery_date"], [id*="delivery_method"], [id*="discount"], [id*="taxes"], [id*="quotation_status"]');
+    console.log('\n🏷️ All elements with relevant field IDs (wildcard search):');
+    const allFieldElements = document.querySelectorAll('[id*="order_note"], [id*="buy_order"], [id*="remito"], [id*="bill_"], [id*="date_order"], [id*="validity_date"], [id*="delivery_date"], [id*="delivery_method"], [id*="discount"], [id*="taxes"], [id*="quotation_status"]');
     allFieldElements.forEach((el, index) => {
-        console.log(`${index + 1}:`, el.id, el);
+        console.log(`${index + 1}:`, el.id, el.tagName, {
+            name: el.name,
+            value: el.value || 'N/A'
+        });
+    });
+    
+    console.log('\n🎯 Current sale_status value:');
+    const statusSelects = document.querySelectorAll('select[id*="sale_status"]');
+    statusSelects.forEach((sel, index) => {
+        console.log(`${index + 1}: ID="${sel.id}", Value="${sel.value}"`);
     });
 };
 

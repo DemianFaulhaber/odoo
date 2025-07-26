@@ -142,7 +142,7 @@
                         <group col="2">
                             <group>
                                 <field name="order_note_id" string="Nota de pedido" 
-                                style="pointer-events:none;cursor:not-allowed;"/>
+                                style="pointer-events:none;cursor:not-allowed;" id="order_note_id_field"/>
                                 <field name="buy_order" string="Estado nota de compra" id="buy_order_field"/>
                                 <field name="buy_order_number" string="Número de nota de compra" 
                                        invisible="buy_order != 'number'" 
@@ -179,13 +179,13 @@
                     invisible="sale_status in ['quotation', 'sale_order', 'remito']">
                         <group col="3">
                             <group>
-                                <field name="bill_number" class="o_field_widget o_field_many2one"/>
+                                <field name="bill_number" class="o_field_widget o_field_many2one" id="bill_number_field"/>
                             </group>
                             <group>
-                                <field name="bill_status" class="o_field_widget o_field_many2one"/>
+                                <field name="bill_status" class="o_field_widget o_field_many2one" id="bill_status_field"/>
                             </group>
                             <group>
-                                <field name="bill_date" class="o_field_widget o_field_many2one"/>
+                                <field name="bill_date" class="o_field_widget o_field_many2one" id="bill_date_field"/>
                             </group>
                         </group>
                     </page>
