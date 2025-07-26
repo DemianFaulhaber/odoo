@@ -13,23 +13,41 @@ class FileManager(models.Model):
 
     def write(self, vals):
         """Sobrescribir write para detectar cambios en estados y guardar archivos automáticamente"""
+        
+        # DEBUG: Print para ver qué valores se están escribiendo
+        # print(f"🔍 FileManager write() called with vals: {vals}")
+        
         result = super().write(vals)
         
         # Verificar cambios en quotation_status
         if 'quotation_status' in vals:
             new_status = vals['quotation_status']
+            # print(f"📊 QUOTATION_STATUS DETECTADO - Nuevo status: {new_status}")
             if new_status in ['confirmed', 'approved']:
+                # print(f"✅ Condición cumplida para guardar presupuesto - status: {new_status}")
                 for order in self:
+                    # print(f"💾 Guardando presupuesto para orden: {order.name}")
                     _logger.info(f"Guardando presupuesto automáticamente para orden {order.name} - nuevo status: {new_status}")
                     order.save_quotation_file()
+            # else:
+                # print(f"❌ Condición NO cumplida para presupuesto - status: {new_status}")
+        # else:
+            # print("📊 quotation_status NO está en vals")
         
         # Verificar cambios en order_note_state
         if 'order_note_state' in vals:
             new_state = vals['order_note_state']
+            # print(f"📝 ORDER_NOTE_STATE DETECTADO - Nuevo state: {new_state}")
             if new_state == 'finished':
+                # print(f"✅ Condición cumplida para guardar nota de pedido - state: {new_state}")
                 for order in self:
+                    # print(f"💾 Guardando nota de pedido para orden: {order.name}")
                     _logger.info(f"Guardando nota de pedido automáticamente para orden {order.name} - estado: {new_state}")
                     order.save_order_note_file()
+            # else:
+                # print(f"❌ Condición NO cumplida para nota de pedido - state: {new_state}")
+        # else:
+            # print("📝 order_note_state NO está en vals")
         
         return result
 
@@ -72,7 +90,7 @@ class FileManager(models.Model):
                 with open(full_path, 'wb') as f:
                     f.write(quotation_content)
 
-                print(f"Presupuesto guardado en {full_path}")
+                # print(f"Presupuesto guardado en {full_path}")
                 _logger.info(f"Presupuesto guardado: {full_path}")
 
                 # Adjuntar al registro
@@ -115,7 +133,7 @@ class FileManager(models.Model):
                 with open(full_path, 'wb') as f:
                     f.write(ordernote_content)
 
-                print(f"Nota de pedido guardada en {full_path}")
+                # print(f"Nota de pedido guardada en {full_path}")
                 _logger.info(f"Nota de pedido guardada: {full_path}")
 
                 # Adjuntar al registro

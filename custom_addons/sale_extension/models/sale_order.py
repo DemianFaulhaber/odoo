@@ -1,4 +1,3 @@
-import base64
 from odoo import api, fields, models
 
 
@@ -145,104 +144,6 @@ class SaleOrder(models.Model):
 
     def print_ordernote_report(self):
          return self.env.ref('sale_extension.order_note_pdf').report_action(self)
-
-    def _auto_generate_quotation_pdf(self):
-        """
-        Generate and save quotation PDF automatically when quotation_status changes to confirmed or approved
-        """
-        try:
-            # Get the quotation report
-            report = self.env.ref('sale.action_report_saleorder')
-            if report:
-                # Generate the PDF
-                pdf_content, content_type = report._render_qweb_pdf([self.id])
-                
-                # Create filename
-                filename = f"Presupuesto_{self.name}_{fields.Date.today().strftime('%Y%m%d')}.pdf"
-                
-                # Save as attachment
-                attachment = self.env['ir.attachment'].create({
-                    'name': filename,
-                    'type': 'binary',
-                    'datas': base64.b64encode(pdf_content),
-                    'res_model': 'sale.order',
-                    'res_id': self.id,
-                    'mimetype': 'application/pdf',
-                    'description': f'Presupuesto generado automáticamente - Estado: {dict(self._fields["quotation_status"].selection)[self.quotation_status]}'
-                })
-                
-                # Log the generation
-                self.message_post(
-                    body=f"Presupuesto PDF generado automáticamente: {filename}",
-                    attachment_ids=[attachment.id]
-                )
-                
-        except Exception as e:
-            # Log error but don't stop the workflow
-            self.message_post(body=f"Error al generar PDF de presupuesto automáticamente: {str(e)}")
-
-    def _auto_generate_ordernote_pdf(self):
-        """
-        Generate and save order note PDF automatically when order_note_state changes to finished
-        """
-        try:
-            # Get the order note report
-            report = self.env.ref('sale_extension.order_note_pdf')
-            if report:
-                # Generate the PDF
-                pdf_content, content_type = report._render_qweb_pdf([self.id])
-                
-                # Create filename
-                filename = f"NotaPedido_{self.order_note_id or self.name}_{fields.Date.today().strftime('%Y%m%d')}.pdf"
-                
-                # Save as attachment
-                attachment = self.env['ir.attachment'].create({
-                    'name': filename,
-                    'type': 'binary',
-                    'datas': base64.b64encode(pdf_content),
-                    'res_model': 'sale.order',
-                    'res_id': self.id,
-                    'mimetype': 'application/pdf',
-                    'description': f'Nota de Pedido generada automáticamente - Estado: {dict(self._fields["order_note_state"].selection)[self.order_note_state]}'
-                })
-                
-                # Log the generation
-                self.message_post(
-                    body=f"Nota de Pedido PDF generada automáticamente: {filename}",
-                    attachment_ids=[attachment.id]
-                )
-                
-        except Exception as e:
-            # Log error but don't stop the workflow
-            self.message_post(body=f"Error al generar PDF de nota de pedido automáticamente: {str(e)}")
-
-    def write(self, vals):
-        """
-        Override write to detect status changes and auto-generate PDFs
-        """
-        for order in self:
-            # Store old values before update
-            old_quotation_status = order.quotation_status
-            old_order_note_state = order.order_note_state
-            
-            # Call parent write method
-            result = super(SaleOrder, order).write(vals)
-            
-            # Check if quotation_status changed to confirmed or approved
-            if 'quotation_status' in vals:
-                new_quotation_status = vals['quotation_status']
-                if (old_quotation_status not in ['confirmed', 'approved'] and 
-                    new_quotation_status in ['confirmed', 'approved']):
-                    order._auto_generate_quotation_pdf()
-            
-            # Check if order_note_state changed to finished
-            if 'order_note_state' in vals:
-                new_order_note_state = vals['order_note_state']
-                if (old_order_note_state != 'finished' and 
-                    new_order_note_state == 'finished'):
-                    order._auto_generate_ordernote_pdf()
-        
-        return result if len(self) == 1 else super().write(vals)
 
     #custom computes
     @api.depends('quotation_status', 'order_note_state', 'remito_status', 'bill_status')

@@ -319,5 +319,17 @@
             </field>
         </record>
 
+        <record id="view_order_form_inherit_change_order_lines_string" model="ir.ui.view">
+            <field name="name">sale.order.form.inherit.change.order.lines.string</field>
+            <field name="model">sale.order</field>
+            <field name="inherit_id" ref="sale.view_order_form"/>
+            <field name="arch" type="xml">
+                <!-- Cambiar el string "Order Lines" a "Presupuesto" -->
+                <xpath expr="//page[@name='order_lines']" position="attributes">
+                    <attribute name="string">Presupuesto</attribute>
+                </xpath>
+            </field>
+        </record>
+
     </data>
 </odoo>
