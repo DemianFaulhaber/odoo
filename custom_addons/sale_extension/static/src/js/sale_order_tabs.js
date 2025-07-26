@@ -1,5 +1,63 @@
 /** @odoo-module **/
 
+// Function to apply visual styles to specific fields based on sale_status
+function updateFieldsVisualState() {
+    console.log('Checking fields visual state...');
+    
+    // Get the sale_status select element
+    const statusSelect = document.querySelector('select[id^="sale_status"]') || document.getElementById('sale_status_0');
+    if (!statusSelect) {
+        console.log('Status select not found');
+        return;
+    }
+    
+    const saleStatus = statusSelect.value.replace(/"/g, '');
+    console.log('Current sale_status for fields:', saleStatus);
+    
+    // Define field selectors (using more flexible selectors instead of just IDs)
+    const quotationOnlyFieldSelectors = [
+        '[name="partner_id"]',           // Customer field
+        '[name="date_order"]',           // Date order field
+        '[name="validity_date"]',        // Validity date field  
+        '[name="delivery_date"]',        // Delivery date field
+        '[name="delivery_method"]',      // Delivery method field
+        '[name="discount"]',             // Discount field
+        '[name="taxes"]'                 // Taxes field
+    ];
+    
+    // Should fields be disabled?
+    const shouldBeDisabled = saleStatus !== 'quotation' && saleStatus !== 'false' && saleStatus !== '';
+    
+    quotationOnlyFieldSelectors.forEach(selector => {
+        const fieldElements = document.querySelectorAll(selector);
+        console.log(`Selector "${selector}": found ${fieldElements.length} elements`);
+        
+        fieldElements.forEach((fieldElement, index) => {
+            if (fieldElement) {
+                console.log(`Processing field ${index + 1} for selector: ${selector}`);
+                
+                if (shouldBeDisabled) {
+                    // Apply disabled styles
+                    fieldElement.style.opacity = '0.6';
+                    fieldElement.style.pointerEvents = 'none';
+                    fieldElement.style.cursor = 'not-allowed';
+                    fieldElement.style.backgroundColor = '#f8f9fa';
+                    fieldElement.setAttribute('data-visual-disabled', 'true');
+                    console.log(`  - Disabled field: ${selector} (element ${index + 1})`);
+                } else {
+                    // Remove disabled styles
+                    fieldElement.style.opacity = '';
+                    fieldElement.style.pointerEvents = '';
+                    fieldElement.style.cursor = '';
+                    fieldElement.style.backgroundColor = '';
+                    fieldElement.removeAttribute('data-visual-disabled');
+                    console.log(`  - Enabled field: ${selector} (element ${index + 1})`);
+                }
+            }
+        });
+    });
+}
+
 // Efficient function to handle Order Lines readonly behavior only
 function updateOrderLinesStatus() {
     console.log('Checking Order Lines status...');
@@ -118,18 +176,23 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Initial check
     updateOrderLinesStatus();
+    updateFieldsVisualState();
     
     // Use MutationObserver to watch for the status select and add listener
     const observer = new MutationObserver(function(mutations) {
         const statusSelect = document.querySelector('select[id^="sale_status"]');
         if (statusSelect && !statusSelect.hasAttribute('data-listener-added')) {
             // Add change event listener
-            statusSelect.addEventListener('change', updateOrderLinesStatus);
+            statusSelect.addEventListener('change', function() {
+                updateOrderLinesStatus();
+                updateFieldsVisualState();
+            });
             statusSelect.setAttribute('data-listener-added', 'true');
             console.log('Added change listener to status select');
             
             // Initial check after finding the select
             updateOrderLinesStatus();
+            updateFieldsVisualState();
         }
         
         // Watch for value changes in the sale_status field (for programmatic changes)
@@ -138,7 +201,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 const target = mutation.target;
                 if (target.matches && target.matches('select[id^="sale_status"]')) {
                     console.log('sale_status value changed programmatically');
-                    setTimeout(updateOrderLinesStatus, 50);
+                    setTimeout(function() {
+                        updateOrderLinesStatus();
+                        updateFieldsVisualState();
+                    }, 50);
                 }
             }
         });
@@ -147,7 +213,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const orderLinesField = document.querySelector('[name="order_line"]');
         if (orderLinesField && !orderLinesField.hasAttribute('data-workflow-monitored')) {
             orderLinesField.setAttribute('data-workflow-monitored', 'true');
-            setTimeout(updateOrderLinesStatus, 100);
+            setTimeout(function() {
+                updateOrderLinesStatus();
+                updateFieldsVisualState();
+            }, 100);
         }
     });
     
@@ -161,7 +230,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Also listen for form changes (when switching between records)
     document.addEventListener('focusin', function(e) {
         if (e.target.closest('[name="sale_status"]')) {
-            setTimeout(updateOrderLinesStatus, 100);
+            setTimeout(function() {
+                updateOrderLinesStatus();
+                updateFieldsVisualState();
+            }, 100);
         }
     });
     
@@ -169,7 +241,10 @@ document.addEventListener('DOMContentLoaded', function() {
     document.addEventListener('input', function(e) {
         if (e.target.matches && e.target.matches('select[id^="sale_status"]')) {
             console.log('sale_status input changed');
-            setTimeout(updateOrderLinesStatus, 50);
+            setTimeout(function() {
+                updateOrderLinesStatus();
+                updateFieldsVisualState();
+            }, 50);
         }
     });
     
@@ -183,6 +258,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log('sale_status value changed from', lastStatusValue, 'to', currentValue);
                 lastStatusValue = currentValue;
                 updateOrderLinesStatus();
+                updateFieldsVisualState();
             }
         }
     }, 1000); // Check every second
@@ -190,14 +266,60 @@ document.addEventListener('DOMContentLoaded', function() {
     // Listen for tab changes to reapply overlay if needed
     document.addEventListener('click', function(e) {
         if (e.target.closest('.nav-link')) {
-            setTimeout(updateOrderLinesStatus, 300);
+            setTimeout(function() {
+                updateOrderLinesStatus();
+                updateFieldsVisualState();
+            }, 300);
         }
     });
 });
 
 // Run immediately if DOM is already loaded
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', updateOrderLinesStatus);
+    document.addEventListener('DOMContentLoaded', function() {
+        updateOrderLinesStatus();
+        updateFieldsVisualState();
+    });
 } else {
     updateOrderLinesStatus();
+    updateFieldsVisualState();
 }
+
+// Global function to debug available fields
+window.debugAvailableFields = function() {
+    console.log('🔍 DEBUG: Available form fields');
+    
+    const fieldSelectors = [
+        '[name="partner_id"]',           // Customer field
+        '[name="date_order"]',
+        '[name="validity_date"]', 
+        '[name="delivery_date"]',
+        '[name="delivery_method"]',
+        '[name="discount"]',
+        '[name="taxes"]',
+        '[name="quotation_status"]',
+        '[name="sale_status"]'
+    ];
+    
+    fieldSelectors.forEach(selector => {
+        const elements = document.querySelectorAll(selector);
+        console.log(`${selector}: ${elements.length} elements found`);
+        elements.forEach((el, index) => {
+            console.log(`  ${index + 1}:`, el, {
+                id: el.id,
+                name: el.name,
+                tagName: el.tagName,
+                value: el.value,
+                classList: Array.from(el.classList)
+            });
+        });
+    });
+    
+    console.log('\n🏷️ All elements with IDs containing field names:');
+    const allFieldElements = document.querySelectorAll('[id*="date_order"], [id*="validity_date"], [id*="delivery_date"], [id*="delivery_method"], [id*="discount"], [id*="taxes"], [id*="quotation_status"]');
+    allFieldElements.forEach((el, index) => {
+        console.log(`${index + 1}:`, el.id, el);
+    });
+};
+
+console.log('💡 Debug function available: debugAvailableFields()');

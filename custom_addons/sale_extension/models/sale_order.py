@@ -112,7 +112,7 @@ class SaleOrder(models.Model):
         ('sale_order', 'Orden de venta'),
         ('remito', 'Remito'),
         ('bill', 'Factura')
-    ], string="Estado de venta", default='quotation', store=True, compute='_compute_sale_status', readonly=True)
+    ], string="Estado de venta", default='quotation', store=True, compute='_compute_sale_status')
 
     # Custom computed fields for discount calculations
     amount_untaxed_before_discount = fields.Monetary(
